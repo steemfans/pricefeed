@@ -46,7 +46,7 @@ docker tag steemfans/pricefeed pricefeed
 # edit config.json and run container
 docker run -itd \
     --name pricefeed \
-    -v config.json:/app/config.json \
+    -v $(pwd)/config.json:/app/config.json \
     pricefeed
 
 # Check the status with docker logs
