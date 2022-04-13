@@ -36,8 +36,18 @@ If everything worked you should not see any errors in the logs and a price feed 
 If you prefer using Docker, use the following commands:
 
 ```
+# build your own docker image
 docker build -t pricefeed .
-docker run -itd --rm --name pricefeed pricefeed
+
+# also you could use an exist image
+docker pull steemfans/pricefeed
+docker tag steemfans/pricefeed pricefeed
+
+# edit config.json and run container
+docker run -itd \
+    --name pricefeed \
+    -v $(pwd)/config.json:/app/config.json \
+    pricefeed
 
 # Check the status with docker logs
 docker logs pricefeed
