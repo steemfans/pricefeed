@@ -15,12 +15,6 @@ function startProcess() {
   if(config.exchanges && config.exchanges.length > 0) {
     var prices = [];
 
-    if(config.exchanges.indexOf('bittrex') >= 0) {
-      loadPriceBittrex(function (price) {
-        prices.push(price);
-      }, 0);
-    }
-
     if(config.exchanges.indexOf('binance') >= 0) {
       loadPriceBinance(function (price) {
         prices.push(price);
@@ -84,28 +78,8 @@ function loadPriceCMC(callback, retries) {
   });
 }
 
-function loadPriceBittrex(callback, retries) {
-  // Load STEEM price in BTC from bittrex and convert that to USD using BTC price in coinmarketcap
-  request.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/', function (e, r, data) {
-    request.get('https://bittrex.com/api/v1.1/public/getticker?market=BTC-STEEM', function (e, r, btc_data) {
-      try {
-        steem_price = parseFloat(JSON.parse(data)[0].price_usd) * parseFloat(JSON.parse(btc_data).result.Last);
-        log('Loaded STEEM Price from Bittrex: ' + steem_price);
-
-        if (callback)
-          callback(steem_price);
-      } catch (err) {
-        log('Error loading STEEM price from Bittrex: ' + err);
-
-        if(retries < 2)
-          setTimeout(function () { loadPriceBittrex(callback, retries + 1); }, 10 * 1000);
-      }
-    });
-  });
-}
-
 function loadPriceBinance(callback, retries) {
-  // Load STEEM price in BTC from bittrex and convert that to USD using BTC price in coinmarketcap
+  // Load STEEM price in BTC and convert that to USD using BTC price in coinmarketcap
   request.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT', function (e, r, data) {
     request.get('https://api.binance.com/api/v3/ticker/price?symbol=STEEMBTC', function (e, r, btc_data) {
       try {
@@ -125,7 +99,7 @@ function loadPriceBinance(callback, retries) {
 }
 
 function loadPricePoloniex(callback, retries) {
-  // Load STEEM price in BTC from bittrex and convert that to USD using BTC price in coinmarketcap
+  // Load STEEM price in BTC and convert that to USD using BTC price in coinmarketcap
   request.get('https://poloniex.com/public?command=returnTicker', function (e, r, data) {
     try {
       var json_data = JSON.parse(data);
