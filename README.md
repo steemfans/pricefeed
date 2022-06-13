@@ -18,7 +18,7 @@ $ cd pricefeed
 $ npm install
 ```
 
-Update the config.json file with your witness account name and private active key as described in the Configuration section below.
+Update the config.json file with your witness account name and private active key as described in the Configuration section below. Alternative, you can set account and private key in environment variables. 
 
 ### Run in background with PM2
 I suggest using the PM2 software to manage and run your nodejs programs in the background. Use the following commands to install PM2 and run the pricefeed program:
@@ -54,9 +54,10 @@ docker logs pricefeed
 ```
 
 ## Configuration
+List of STEEM RPC nodes to use:
 ```
 {
-  "rpc_nodes": [											// List of RPC nodes to use
+  "rpc_nodes": [
     "https://api.steemit.com",
     "https://steemapi.boylikegirl.club",
     "https://api.steemzzang.com",
@@ -67,10 +68,14 @@ docker logs pricefeed
     "https://api.steemitdev.com",
     "https://api.justyy.com"
   ],
-  "account": "witness_account_name",						// Name of your Steem witness account
-  "active_key": "witness_account_private_active_key",		// Private active key of your Steem witness account
-  "exchanges": ["poloniex", "binance"],  // List of exchanges to use. Will publish an average of all exchanges in the list. If no exchanges are specified it will fall back to coinmarketcap.com as the default.
-  "interval": 60,											// Number of minutes between feed publishes
-  "peg_multi": 1											// Feed bias setting, quote will be set to 1 / peg_multi
+  "feed_steem_account": "",                            // Name of your Steem witness account - if left empty, then should be set in env.
+  "feed_steem_active_key": "",		                   // Private active key of your Steem witness account - if left empty, then should be set in env.
+  "exchanges": ["poloniex", "binance", "cloudflare"],  // List of exchanges to use. Will publish an average of all exchanges in the list.
+  "interval": 60,									   // Number of minutes between feed publishes
+  "feed_publish_interval": 30,                         // Feed published after 30 seconds of price feed
+  "feed_publish_fail_retry": 5,                        // RPC node fail over to next after 5 retries
+  "price_feed_max_retry": 5,                           // Max retry for Price Feed API
+  "retry_interval": 10,                                // Retry interval 10 seconds
+  "peg_multi": 1									   // Feed bias setting, quote will be set to 1 / peg_multi
 }
 ```

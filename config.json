@@ -1,10 +1,24 @@
 {
   "rpc_nodes": [
-    "https://api.steemit.com"
+    "https://api.steemit.com",
+    "https://api.steemzzang.com",
+    "https://api.steem-fanbase.com",
+    "https://api.steemitdev.com",
+    "https://steem.ecosynthesizer.com",
+    "https://api.justyy.com",
+    "https://api.wherein.io",
+    "https://steem.justyy.workers.dev",
+    "https://justyy.azurewebsites.net/api/steem",
+    "https://api.dlike.io",
+    "https://steemapi.boylikegirl.club"
   ],
-  "account": "your_witness_account_name",
-  "active_key": "your_witness_account_private_active_key",
-  "exchanges": ["poloniex", "binance"],
+  "feed_steem_account": "",
+  "feed_steem_active_key": "",
+  "exchanges": ["poloniex", "binance", "cloudflare"],
   "interval": 60,
+  "feed_publish_interval": 30,
+  "feed_publish_fail_retry": 5,
+  "price_feed_max_retry": 5,
+  "retry_interval": 10, 
   "peg_multi": 1
 }
