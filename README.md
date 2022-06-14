@@ -1,5 +1,7 @@
 # Steem Witness Price Feed Publishing Tool
 
+![image](https://user-images.githubusercontent.com/1764434/173547905-6366f5eb-22dc-4327-bbda-6a4cc4cd3b96.png)
+
 ## Install nodejs & npm
 If you already have nodejs & npm installed you can skip this section, but I wanted to include it here for thoroughness. Run the following commands to install nodejs and npm in order to run the pricefeed software:
 
@@ -70,7 +72,7 @@ List of STEEM RPC nodes to use:
   ],
   "feed_steem_account": "",                            // Name of your Steem witness account - if left empty, then should be set in env.
   "feed_steem_active_key": "",		                   // Private active key of your Steem witness account - if left empty, then should be set in env.
-  "exchanges": ["poloniex", "binance", "cloudflare"],  // List of exchanges to use. Will publish an average of all exchanges in the list.
+  "exchanges": ["poloniex", "binance", "cloudflare", "bittrex", "coingecko", "cryptocompare"],  // List of exchanges to use. Will publish an average of all exchanges in the list.
   "interval": 60,									   // Number of minutes between feed publishes
   "feed_publish_interval": 30,                         // Feed published after 30 seconds of price feed
   "feed_publish_fail_retry": 5,                        // RPC node fail over to next after 5 retries
