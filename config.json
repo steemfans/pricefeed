@@ -14,7 +14,7 @@
   ],
   "feed_steem_account": "",
   "feed_steem_active_key": "",
-  "exchanges": ["poloniex", "binance", "cloudflare"],
+  "exchanges": ["poloniex", "binance", "cloudflare", "bittrex", "coingecko", "cryptocompare"],
   "interval": 60,
   "feed_publish_interval": 30,
   "feed_publish_fail_retry": 5,

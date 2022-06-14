@@ -66,7 +66,25 @@ function startProcess() {
     loadPriceCloudflare(function (price) {
       prices.push(price);
     }, 0);
-  }    
+  }  
+  
+  if (config.exchanges.indexOf('bittrex') >= 0) {
+    loadPriceBittrex(function (price) {
+      prices.push(price);
+    }, 0);
+  }   
+  
+  if (config.exchanges.indexOf('coingecko') >= 0) {
+    loadPriceCoingecko(function (price) {
+      prices.push(price);
+    }, 0);
+  }  
+  
+  if (config.exchanges.indexOf('cryptocompare') >= 0) {
+    loadPriceCryptocompare(function (price) {
+      prices.push(price);
+    }, 0);
+  }           
 
   // Publish the average of all markets that were loaded
   setTimeout(function() {
@@ -104,6 +122,74 @@ function publishFeed(price, retries) {
         publishFeed(price, retries + 1);
       }, config.retry_interval * 1000);
     }
+  });
+}
+
+function loadPriceCryptocompare(callback, retries) {
+  // Load STEEM price in BTC from Cryptocompare and convert that to USD using BTC price
+  request.get('https://min-api.cryptocompare.com/data/price?fsym=STEEM&tsyms=USDT', function (e, r, data) {    
+    try {
+      const steem_price = parseFloat(JSON.parse(data).USDT);
+      log('Loaded STEEM Price from Cryptocompare: ' + steem_price);
+
+      if (callback) {
+        callback(steem_price);
+      }
+    } catch (err) {
+      log('Error loading STEEM price from Cryptocompare: ' + err);
+
+      if(retries <= config.price_feed_max_retry) {
+        setTimeout(function () { 
+          loadPriceCryptocompare(callback, retries + 1); 
+        }, config.retry_interval * 1000);
+      }
+    }
+  });
+}
+
+function loadPriceCoingecko(callback, retries) {
+  // Load STEEM price in BTC from Coingecko and convert that to USD using BTC price
+  request.get('https://api.coingecko.com/api/v3/simple/price?ids=steem&vs_currencies=usd', function (e, r, data) {
+    try {
+      const steem_price = parseFloat(JSON.parse(data).steem.usd);
+      log('Loaded STEEM Price from Coingecko: ' + steem_price);
+
+      if (callback) {
+        callback(steem_price);
+      }
+    } catch (err) {
+      log('Error loading STEEM price from Coingecko: ' + err);
+
+      if(retries <= config.price_feed_max_retry) {
+        setTimeout(function () { 
+          loadPriceCoingecko(callback, retries + 1); 
+        }, config.retry_interval * 1000);
+      }
+    }
+  });
+}
+
+function loadPriceBittrex(callback, retries) {
+  // Load STEEM price in BTC from bittrex and convert that to USD using BTC price
+  request.get('https://api.bittrex.com/v3/markets/BTC-USD/ticker', function (e, r, data) {
+    request.get('https://api.bittrex.com/v3/markets/STEEM-BTC/ticker', function (e, r, btc_data) {
+      try {
+        const steem_price = parseFloat(JSON.parse(data).lastTradeRate) * parseFloat(JSON.parse(btc_data).lastTradeRate);
+        log('Loaded STEEM Price from Bittrex: ' + steem_price);
+
+        if (callback) {
+          callback(steem_price);
+        }
+      } catch (err) {
+        log('Error loading STEEM price from Bittrex: ' + err);
+
+        if(retries <= config.price_feed_max_retry) {
+          setTimeout(function () { 
+            loadPriceBittrex(callback, retries + 1); 
+          }, config.retry_interval * 1000);
+        }
+      }
+    });
   });
 }
 
