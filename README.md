@@ -41,10 +41,6 @@ If you prefer using Docker, use the following commands:
 # build your own docker image
 docker build -t pricefeed .
 
-# also you could use an exist image
-docker pull steemfans/pricefeed
-docker tag steemfans/pricefeed pricefeed
-
 # edit config.json and run container
 docker run -itd \
     --name pricefeed \
