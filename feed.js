@@ -28,6 +28,14 @@ function get_account_name() {
     return process.env.feed_steem_account;
 }
 
+// if coinmarketcap_api_key is not set in config.json
+// then look for it in environment variables
+function get_coinmarketcap_api_key() {
+    const key = config.coinmarketcap_api_key;
+    if (key) return key;
+    return process.env.coinmarketcap_api_key;
+}
+
 if (!get_account_name()) {
     console.log("feed_steem_account not set in config.json or environment");
     process.exit(1);
@@ -49,30 +57,12 @@ function log(msg) {
 
 function startProcess() {  
   let prices = [];
-
-  if (config.exchanges.indexOf('binance') >= 0) {
-    loadPriceBinance(function (price) {
-      prices.push(price);
-    }, 0);
-  }
-
-  if (config.exchanges.indexOf('poloniex') >= 0) {
-    loadPricePoloniex(function (price) {
-      prices.push(price);
-    }, 0);
-  }
   
   if (config.exchanges.indexOf('cloudflare') >= 0) {
     loadPriceCloudflare(function (price) {
       prices.push(price);
     }, 0);
   }  
-  
-  if (config.exchanges.indexOf('bittrex') >= 0) {
-    loadPriceBittrex(function (price) {
-      prices.push(price);
-    }, 0);
-  }   
   
   if (config.exchanges.indexOf('coingecko') >= 0) {
     loadPriceCoingecko(function (price) {
@@ -85,6 +75,12 @@ function startProcess() {
       prices.push(price);
     }, 0);
   }           
+
+  if (config.exchanges.indexOf('coinmarketcap') >= 0) {
+    loadPriceCoinMarketCap(function (price) {
+      prices.push(price);
+    }, 0);
+  }
 
   // Publish the average of all markets that were loaded
   setTimeout(function() {
@@ -125,8 +121,37 @@ function publishFeed(price, retries) {
   });
 }
 
+function loadPriceCoinMarketCap(callback, retries) {
+  // Load STEEM price in USD directly from CoinMarketCap
+
+  api_key = get_coinmarketcap_api_key();
+  if (!api_key) {
+    console.log("coinmarketcap_api_key not set in config.json or environment");
+    process.exit(1);
+  }
+
+  request.get('https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?symbol=STEEM&CMC_PRO_API_KEY=' + api_key, function (e, r, data) {
+    try {
+      const steem_price = parseFloat(JSON.parse(data).data.STEEM[0].quote.USD.price);
+      log('Loaded STEEM Price from CoinMarketCap: ' + steem_price);
+
+      if (callback) {
+        callback(steem_price);
+      }
+    } catch (err) {
+      log('Error loading STEEM price from CoinMarketCap: ' + err);
+
+      if(retries <= config.price_feed_max_retry) {
+        setTimeout(function () { 
+          loadPriceCoinMarketCap(callback, retries + 1); 
+        }, config.retry_interval * 1000);
+      }
+    }
+  });
+}
+
 function loadPriceCryptocompare(callback, retries) {
-  // Load STEEM price in BTC from Cryptocompare and convert that to USD using BTC price
+  // Load STEEM price in USD directly from CryptoCompare
   request.get('https://min-api.cryptocompare.com/data/price?fsym=STEEM&tsyms=USDT', function (e, r, data) {    
     try {
       const steem_price = parseFloat(JSON.parse(data).USDT);
@@ -148,7 +173,7 @@ function loadPriceCryptocompare(callback, retries) {
 }
 
 function loadPriceCoingecko(callback, retries) {
-  // Load STEEM price in BTC from Coingecko and convert that to USD using BTC price
+  // Load STEEM price in USD directly from CoinGecko
   request.get('https://api.coingecko.com/api/v3/simple/price?ids=steem&vs_currencies=usd', function (e, r, data) {
     try {
       const steem_price = parseFloat(JSON.parse(data).steem.usd);
@@ -163,77 +188,6 @@ function loadPriceCoingecko(callback, retries) {
       if(retries <= config.price_feed_max_retry) {
         setTimeout(function () { 
           loadPriceCoingecko(callback, retries + 1); 
-        }, config.retry_interval * 1000);
-      }
-    }
-  });
-}
-
-function loadPriceBittrex(callback, retries) {
-  // Load STEEM price in BTC from bittrex and convert that to USD using BTC price
-  request.get('https://api.bittrex.com/v3/markets/BTC-USD/ticker', function (e, r, data) {
-    request.get('https://api.bittrex.com/v3/markets/STEEM-BTC/ticker', function (e, r, btc_data) {
-      try {
-        const steem_price = parseFloat(JSON.parse(data).lastTradeRate) * parseFloat(JSON.parse(btc_data).lastTradeRate);
-        log('Loaded STEEM Price from Bittrex: ' + steem_price);
-
-        if (callback) {
-          callback(steem_price);
-        }
-      } catch (err) {
-        log('Error loading STEEM price from Bittrex: ' + err);
-
-        if(retries <= config.price_feed_max_retry) {
-          setTimeout(function () { 
-            loadPriceBittrex(callback, retries + 1); 
-          }, config.retry_interval * 1000);
-        }
-      }
-    });
-  });
-}
-
-function loadPriceBinance(callback, retries) {
-  // Load STEEM price in BTC and convert that to USD using BTC price
-  request.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT', function (e, r, data) {
-    request.get('https://api.binance.com/api/v3/ticker/price?symbol=STEEMBTC', function (e, r, btc_data) {
-      try {
-        const steem_price = parseFloat(JSON.parse(data).price) * parseFloat(JSON.parse(btc_data).price);
-        log('Loaded STEEM Price from Binance: ' + steem_price);
-
-        if (callback) {
-          callback(steem_price);
-        }
-      } catch (err) {
-        log('Error loading STEEM price from Binance: ' + err);
-
-        if (retries <= config.price_feed_max_retry) {
-          setTimeout(function () { 
-            loadPriceBinance(callback, retries + 1); 
-          }, config.retry_interval * 1000);
-        }
-      }
-    });
-  });
-}
-
-function loadPricePoloniex(callback, retries) {
-  // Load STEEM price in BTC and convert that to USD using BTC price
-  request.get('https://poloniex.com/public?command=returnTicker', function (e, r, data) {
-    try {
-      const json_data = JSON.parse(data);
-      const steem_price = parseFloat(json_data['USDT_BTC'].last) * parseFloat(json_data['BTC_STEEM'].last)
-      log('Loaded STEEM Price from Poloniex: ' + steem_price);
-
-      if (callback) {
-        callback(steem_price);
-      }
-    } catch (err) {
-      log('Error loading STEEM price from Poloniex: ' + err);
-
-      if (retries <= config.price_feed_max_retry) {
-        setTimeout(function () { 
-          loadPriceBinance(loadPricePoloniex, retries + 1); 
         }, config.retry_interval * 1000);
       }
     }
@@ -257,7 +211,7 @@ function loadPriceCloudflare(callback, retries) {
 
       if (retries <= config.price_feed_max_retry) {
         setTimeout(function () { 
-          loadPriceBinance(loadPriceCloudflare, retries + 1); 
+          loadPriceCloudflare(loadPriceCloudflare, retries + 1);
         }, config.retry_interval * 1000);
       }
     }
