@@ -2,13 +2,12 @@
 
 ![image](https://user-images.githubusercontent.com/1764434/173547905-6366f5eb-22dc-4327-bbda-6a4cc4cd3b96.png)
 
-## Install nodejs & npm
+## Install nodejs & npm (Ubuntu 20.04+)
 If you already have nodejs & npm installed you can skip this section, but I wanted to include it here for thoroughness. Run the following commands to install nodejs and npm in order to run the pricefeed software:
 
 ```
 $ sudo apt-get update
-$ curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
-$ sudo apt-get install -y nodejs
+$ sudo apt-get install -y nodejs npm
 ```
 
 ## Setup & Installation
