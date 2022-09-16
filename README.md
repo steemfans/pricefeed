@@ -2,21 +2,20 @@
 
 ![image](https://user-images.githubusercontent.com/1764434/173547905-6366f5eb-22dc-4327-bbda-6a4cc4cd3b96.png)
 
-This fork of [@justyy's version](https://github.com/DoctorLai/pricefeed) adds CoinMarketCap support, removes exchanges in favour of aggregators, and fixes a small retry bug.
-
-## Install nodejs & npm (Ubuntu 20.04+)
+## Install nodejs & npm
 If you already have nodejs & npm installed you can skip this section, but I wanted to include it here for thoroughness. Run the following commands to install nodejs and npm in order to run the pricefeed software:
 
 ```
 $ sudo apt-get update
-$ sudo apt-get install -y nodejs npm
+$ curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+$ sudo apt-get install -y nodejs
 ```
 
 ## Setup & Installation
 Clone the project repo into the "pricefeed" directory and install using NPM:
 
 ```
-$ git clone https://github.com/rexthetech/pricefeed.git pricefeed
+$ git clone https://github.com/DoctorLai/pricefeed.git pricefeed
 $ cd pricefeed
 $ npm install
 ```
