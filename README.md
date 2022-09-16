@@ -68,7 +68,8 @@ List of STEEM RPC nodes to use:
   ],
   "feed_steem_account": "",                            // Name of your Steem witness account - if left empty, then should be set in env.
   "feed_steem_active_key": "",		                   // Private active key of your Steem witness account - if left empty, then should be set in env.
-  "exchanges": ["poloniex", "binance", "cloudflare", "bittrex", "coingecko", "cryptocompare"],  // List of exchanges to use. Will publish an average of all exchanges in the list.
+  "coinmarketcap_api_key": "",		                   // API key for CoinMarketCap; required if using "coinmarketcap" in exchange list below. Set in env if empty.
+  "exchanges": ["cloudflare", "coingecko", "cryptocompare", "coinmarketcap"],  // List of exchanges to use. Will publish an average of all exchanges in the list.
   "interval": 60,									   // Number of minutes between feed publishes
   "feed_publish_interval": 30,                         // Feed published after 30 seconds of price feed
   "feed_publish_fail_retry": 5,                        // RPC node fail over to next after 5 retries
