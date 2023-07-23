@@ -88,7 +88,8 @@ function startProcess() {
       log("no prices found.");
       return;
     }   
-    const price = prices.reduce((t, v) => t + v, 0) / prices.length;
+    // avoid NaN messes up the result
+    const price = prices.filter(v => !isNaN(v)).reduce((t, v) => t + v, 0) / prices.length;
     console.log(prices);
     log("Price = " + price);
     publishFeed(price, 0); 
@@ -131,6 +132,11 @@ function loadPriceCoinMarketCap(callback, retries) {
   }
 
   request.get('https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?symbol=STEEM&CMC_PRO_API_KEY=' + api_key, function (e, r, data) {
+    if (e) {
+        log(e);
+        log(r.statusCode);
+        return;
+    }
     try {
       const steem_price = parseFloat(JSON.parse(data).data.STEEM[0].quote.USD.price);
       log('Loaded STEEM Price from CoinMarketCap: ' + steem_price);
@@ -152,7 +158,12 @@ function loadPriceCoinMarketCap(callback, retries) {
 
 function loadPriceCryptocompare(callback, retries) {
   // Load STEEM price in USD directly from CryptoCompare
-  request.get('https://min-api.cryptocompare.com/data/price?fsym=STEEM&tsyms=USDT', function (e, r, data) {    
+  request.get('https://min-api.cryptocompare.com/data/price?fsym=STEEM&tsyms=USDT', function (e, r, data) {
+    if (e) {
+        log(e);
+        log(r.statusCode);
+        return;
+    }      
     try {
       const steem_price = parseFloat(JSON.parse(data).USDT);
       log('Loaded STEEM Price from Cryptocompare: ' + steem_price);
@@ -175,6 +186,11 @@ function loadPriceCryptocompare(callback, retries) {
 function loadPriceCoingecko(callback, retries) {
   // Load STEEM price in USD directly from CoinGecko
   request.get('https://api.coingecko.com/api/v3/simple/price?ids=steem&vs_currencies=usd', function (e, r, data) {
+    if (e) {
+        log(e);
+        log(r.statusCode);
+        return;
+    }
     try {
       const steem_price = parseFloat(JSON.parse(data).steem.usd);
       log('Loaded STEEM Price from Coingecko: ' + steem_price);
@@ -196,7 +212,12 @@ function loadPriceCoingecko(callback, retries) {
 
 function loadPriceCloudflare(callback, retries) {
   // Load STEEM price
-  request.get('https://price.justyy.workers.dev/query/?s=STEEM+USDT', function (e, r, data) {
+  request.get('https://ticker.justyy.com/query/?s=STEEM+USDT', function (e, r, data) {
+    if (e) {
+        log(e);
+        log(r.statusCode);
+        return;
+    }      
     try {
       const json_data = JSON.parse(data);
       const arr = json_data.result[0].split(' ')
