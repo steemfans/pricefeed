@@ -152,15 +152,38 @@ function loadPriceBinance(callback, retries) {
 }
 
 function loadPricePoloniex(callback, retries) {
-  // Load STEEM price in BTC and convert that to USD using BTC price
-  request.get('https://poloniex.com/public?command=returnTicker', function (e, r, data) {
+  request.get('https://api.poloniex.com/markets/price', function (e, r, data) {
+    if (e) {
+        log(e);
+        log(r.statusCode);
+        return;
+    }    
     try {
-      const json_data = JSON.parse(data);
-      const steem_price = parseFloat(json_data['USDT_BTC'].last) * parseFloat(json_data['BTC_STEEM'].last)
-      log('Loaded STEEM Price from Poloniex: ' + steem_price);
-
-      if (callback) {
-        callback(steem_price);
+      let jdata = JSON.parse(data);
+      let json_data = {};
+      jdata.forEach(x => {
+        json_data[x["symbol"]] = x;
+      });
+      let steem_price = -1;
+      if (json_data['STEEM_USDT']) {
+        steem_price = parseFloat(json_data['STEEM_USDT'].price);
+        console.log(1);
+      }
+      if (json_data['STEEM_BTC'] && json_data['BTC_USDT']) {
+        console.log(2);
+        steem_price = parseFloat(json_data['STEEM_BTC'].price) * parseFloat(json_data['BTC_USDT'].price);
+      }
+      if (json_data['STEEM_TRX'] && json_data['TRX_USDT']) {
+        console.log(3);
+        steem_price = parseFloat(json_data['STEEM_TRX'].price) * parseFloat(json_data['TRX_USDT'].price);
+      }
+      if (steem_price > 0) {
+        log('Loaded STEEM Price from Poloniex: ' + steem_price);
+        if (callback) {
+          callback(steem_price);
+        }
+      } else {
+        throw "Poloniex API Error!";
       }
     } catch (err) {
       log('Error loading STEEM price from Poloniex: ' + err);
