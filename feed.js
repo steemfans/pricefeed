@@ -62,8 +62,14 @@ function startProcess() {
     loadPriceCloudflare(function (price) {
       prices.push(price);
     }, 0);
-  }  
-  
+  }
+
+  if (config.exchanges.indexOf('slowapi') >= 0) {
+    loadPriceSlowApi(function (price) {
+      prices.push(price);
+    }, 0);
+  }
+
   if (config.exchanges.indexOf('coingecko') >= 0) {
     loadPriceCoingecko(function (price) {
       prices.push(price);
@@ -232,7 +238,35 @@ function loadPriceCloudflare(callback, retries) {
 
       if (retries <= config.price_feed_max_retry) {
         setTimeout(function () { 
-          loadPriceCloudflare(loadPriceCloudflare, retries + 1);
+          loadPriceCloudflare(callback, retries + 1);
+        }, config.retry_interval * 1000);
+      }
+    }
+  });
+}
+
+function loadPriceSlowApi(callback, retries) {
+  // Load STEEM price
+  request.get('https://slowapi.com/api/yf/', function (e, r, data) {
+    if (e) {
+        log(e);
+        log(r.statusCode);
+        return;
+    }
+    try {
+      const json_data = JSON.parse(data);
+      const steem_price = json_data.data["STEEM-USD"]["regularMarketPrice"];
+      log('Loaded STEEM Price from SlowAPI: ' + steem_price);
+
+      if (callback) {
+        callback(steem_price);
+      }
+    } catch (err) {
+      log('Error loading STEEM price from SlowAPI: ' + err);
+
+      if (retries <= config.price_feed_max_retry) {
+        setTimeout(function () { 
+          loadPriceSlowApi(callback, retries + 1); 
         }, config.retry_interval * 1000);
       }
     }
