@@ -14,7 +14,7 @@
   "feed_steem_account": "",
   "feed_steem_active_key": "",
   "coinmarketcap_api_key": "",
-  "exchanges": ["coingecko", "cryptocompare", "coinmarketcap"],
+  "exchanges": ["coingecko", "cryptocompare", "coinmarketcap", "slowapi", "cloudflare"],
   "interval": 60,
   "feed_publish_interval": 30,
   "feed_publish_fail_retry": 5,
