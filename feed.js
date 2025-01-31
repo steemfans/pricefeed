@@ -12,6 +12,14 @@ steem.api.setOptions({
     url: rpc_node 
 });
 
+// custom logging with timestamp
+function log(...messages) {
+    // Get the current timestamp
+    const timestamp = new Date().toISOString();
+    // Format the messages with the timestamp
+    console.log(`[${timestamp}]`, ...messages);
+}
+
 // if feed_steem_active_key is not set in config.json
 // then look for it in environment variables
 function get_active_key() {
@@ -37,22 +45,18 @@ function get_coinmarketcap_api_key() {
 }
 
 if (!get_account_name()) {
-    console.log("feed_steem_account not set in config.json or environment");
+    log("feed_steem_account not set in config.json or environment");
     process.exit(1);
 }
 
 if (!get_active_key()) {
-    console.log("feed_steem_active_key not set in config.json or environment");
+    log("feed_steem_active_key not set in config.json or environment");
     process.exit(1);
 }
 
 if (!config.exchanges || config.exchanges.length == 0) {
-    console.log("no exchanges are specified.");
+    log("no exchanges are specified.");
     process.exit(1);
-}
-
-function log(msg) { 
-    console.log(new Date().toString() + ' - ' + msg); 
 }
 
 function startProcess() {  
@@ -96,7 +100,7 @@ function startProcess() {
     }   
     // avoid NaN messes up the result
     const price = prices.filter(v => !isNaN(v)).reduce((t, v) => t + v, 0) / prices.length;
-    console.log(prices);
+    log(prices);
     log("Price = " + price);
     publishFeed(price, 0); 
   }, config.feed_publish_interval * 1000);
