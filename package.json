@@ -4,7 +4,7 @@
   "description": "Price feed publisher for Steem witnesses",
   "main": "feed.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node errorcheck.js startProcess",
     "start": "node feed.js startProcess"
   },
   "repository": {
